@@ -3,11 +3,9 @@ package main
 import (
 	"fmt"
 	"time"
-
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/pkg/api/v1"
-	"k8s.io/client-go/pkg/api"
 	"os"
 )
 
@@ -23,16 +21,24 @@ func main() {
 		panic(err.Error())
 	}
 
-	var image = os.Getenv("KSD_DOCKER_IMAGE")
+	var image = os.Getenv("KSD_CONTAINER_IMAGE")
 	var name = os.Getenv("KSD_DEPLOYMENT_NAME")
 	var namespace = os.Getenv("KSD_NAMESPACE")
+	var containerName = os.Getenv("KSD_CONTAINER_NAME")
 
 	var tag = "latest"
 
-	var data = fmt.Sprintf(`{"spec":{"template":{"spec":{"containers":[{"image":"%s:%s"}]}}}}`, image, tag);
-	_, err = clientset.Deployments(namespace).Patch(name, api.JSONPatchType, []byte (data));
+	dp, err := clientset.Deployments(namespace).Get(name)
+	if err != nil {
+		panic(err.Error())
+	}
 
-
+	for _,c := range dp.Spec.Template.Spec.Containers {
+		if c.Name == containerName {
+			c.Image = fmt.Sprintf("%s:%s", image, tag)
+		}
+	}
+	_, err = clientset.Deployments(namespace).Update(dp)
 	if err != nil {
 		panic(err.Error())
 	}
