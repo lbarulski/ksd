@@ -8,6 +8,6 @@ jobs:
       - checkout
       - setup_docker_engine
       - run: |
-          docker build -t lbarulski/ksd:latest .
+          docker build -t $DOCKER_USER/ksd:latest .
       - run: |
-          docker login -u $DOCKER_USER -p $DOCKER_PASS && docker push lbarulski/ksd:latest
+          docker login -u $DOCKER_USER -p $DOCKER_PASS && docker push $DOCKER_USER/ksd:latest
