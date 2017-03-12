@@ -30,7 +30,12 @@ func main() {
 	var tag = "latest"
 
 	var data = fmt.Sprintf(`{"spec":{"template":{"spec":{"containers":[{"image":"%s:%s"}]}}}}`, image, tag);
-	clientset.Deployments(namespace).Patch(name, api.JSONPatchType, []byte (data));
+	_, err = clientset.Deployments(namespace).Patch(name, api.JSONPatchType, []byte (data));
+
+
+	if err != nil {
+		panic(err.Error())
+	}
 
 	for {
 		pods, err := clientset.CoreV1().Pods("").List(v1.ListOptions{})
