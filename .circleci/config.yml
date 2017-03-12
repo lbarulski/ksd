@@ -1,1 +1,15 @@
 version: 2
+jobs:
+  build:
+    docker:
+      - image: docker:1.13.1-git
+    working_directory: ~/ksd
+    steps:
+      - checkout
+      - setup_docker_engine
+      - run: |
+          docker build -t ksd:latest .
+      - run: |
+          docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      - run: |
+          docker push lbarulski/ksd:latest
