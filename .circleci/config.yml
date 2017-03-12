@@ -10,6 +10,4 @@ jobs:
       - run: |
           docker build -t lbarulski/ksd:latest .
       - run: |
-          docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: |
-          docker push lbarulski/ksd:latest
+          docker login -u $DOCKER_USER -p $DOCKER_PASS && docker push lbarulski/ksd:latest
