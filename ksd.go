@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"time"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/pkg/api/v1"
 	"os"
+	"net/http"
+	"ksd/controller"
 	"k8s.io/client-go/rest"
 )
 
@@ -24,6 +24,11 @@ func main() {
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		panic(err.Error())
+	}
+
+	var KSDListenPort = os.Getenv("KSD_PORT")
+	if len(KSDListenPort) < 1 {
+		KSDListenPort = "8080"
 	}
 
 	var image = os.Getenv("KSD_CONTAINER_IMAGE")
@@ -52,12 +57,9 @@ func main() {
 	}
 	fmt.Println("Deployment updated")
 
-	for {
-		pods, err := clientset.CoreV1().Pods("").List(v1.ListOptions{})
-		if err != nil {
-			panic(err.Error())
-		}
-		fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
-		time.Sleep(10 * time.Second)
+	http.HandleFunc("/deploy", controller.Deploy)
+	err = http.ListenAndServe(fmt.Sprintf(":%s", KSDListenPort), nil)
+	if nil != err {
+		panic(err)
 	}
 }
