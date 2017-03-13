@@ -33,15 +33,18 @@ func main() {
 		panic(err.Error())
 	}
 
+	fmt.Println("Deployment started for " + name)
 	for _,c := range dp.Spec.Template.Spec.Containers {
 		if c.Name == containerName {
 			c.Image = fmt.Sprintf("%s:%s", image, tag)
+			fmt.Println("Image Found, image has been set: " + c.Image)
 		}
 	}
 	_, err = clientset.Deployments(namespace).Update(dp)
 	if err != nil {
 		panic(err.Error())
 	}
+	fmt.Println("Deployment has been updated")
 
 	for {
 		pods, err := clientset.CoreV1().Pods("").List(v1.ListOptions{})
