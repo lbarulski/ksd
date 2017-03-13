@@ -6,8 +6,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/pkg/api/v1"
 	"os"
-	"flag"
-	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/rest"
 )
 
