@@ -4,13 +4,20 @@ import (
 	"fmt"
 	"time"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
 	"k8s.io/client-go/pkg/api/v1"
 	"os"
+	"flag"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/rest"
 )
 
 func main() {
-	// creates the in-cluster config
+	//!!!!!!! dev !!!!!!!!!!
+	//kubeconfig := flag.String("kubeconfig", "./config", "absolute path to the kubeconfig file")
+	//flag.Parse()
+	//config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+
+	//!!!!!!! prod !!!!!!!!!!
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		panic(err.Error())
@@ -34,17 +41,18 @@ func main() {
 	}
 
 	fmt.Println("Deployment started for " + name)
-	for _,c := range dp.Spec.Template.Spec.Containers {
+	for idx,c := range dp.Spec.Template.Spec.Containers {
 		if c.Name == containerName {
-			c.Image = fmt.Sprintf("%s:%s", image, tag)
-			fmt.Println("Image Found, image has been set: " + c.Image)
+			dp.Spec.Template.Spec.Containers[idx].Image = fmt.Sprintf("%s:%s", image, tag)
+			fmt.Println("Image Found, image has been set: " + dp.Spec.Template.Spec.Containers[idx].Image)
 		}
 	}
-	_, err = clientset.Deployments(namespace).Update(dp)
+
+	dp, err = clientset.Deployments(namespace).Update(dp)
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Println("Deployment has been updated")
+	fmt.Println("Deployment updated")
 
 	for {
 		pods, err := clientset.CoreV1().Pods("").List(v1.ListOptions{})
